@@ -36,7 +36,10 @@ async function personalSign(message: string, privateKey: string | ethers.Signing
     const coinbase = await signer.getAddress();
     const messageHash = ethers.hashMessage(message);
     const signature = await signer.signMessage(ethers.toBeArray(messageHash));
-    return signature;
+    return({
+      signature: signature,
+      coinbase: coinbase
+    });
 }
 
 export default personalSign;

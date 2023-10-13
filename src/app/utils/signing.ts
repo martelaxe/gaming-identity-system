@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
+import * as ethUtil from 'ethereumjs-util';
 
 
 const providerOptions = {
@@ -36,10 +37,20 @@ async function personalSign(message: string, privateKey: string | ethers.Signing
     const coinbase = await signer.getAddress();
     const messageHash = ethers.hashMessage(message);
     const signature = await signer.signMessage(ethers.toBeArray(messageHash));
+
+     // Recover the public key
+     const msgHashBytes = Buffer.from(messageHash.slice(2), 'hex');  // Convert hex to Buffer
+     const signatureParams = ethUtil.fromRpcSig(signature);
+     const publicKey = ethUtil.ecrecover(
+       msgHashBytes,
+       signatureParams.v,
+       signatureParams.r,
+       signatureParams.s
+     );
     return({
       signature: signature,
-      coinbase: coinbase
+      coinbase: coinbase,
+      publicKey: ethUtil.bufferToHex(publicKey)  // Convert the public key to hex string
     });
 }
-
 export default personalSign;

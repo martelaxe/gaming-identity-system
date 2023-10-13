@@ -7,6 +7,8 @@ import personalSign from '../utils/signing';
 const CreateAvatar = () => {
     const [signature, setSignature] = useState<string | null>(null);
     const [coinbase, setCoinbase] = useState<string | null>(null);
+    const [pubkey, setPubKey] = useState<string | null>(null);
+
     const [proofRes, setProofRes] = useState<string | null>(null);
 
     const [twitter_hanlder, setTwitter] = useState<string | null>(null);
@@ -31,6 +33,7 @@ const CreateAvatar = () => {
             console.log(`Signature: ${base64Signature}`);
             setSignature(base64Signature);
             setCoinbase(obj.coinbase);
+            setPubKey(obj.publicKey);
         }
     };
 
@@ -39,8 +42,9 @@ const CreateAvatar = () => {
         action: "create",
         platform: "twitter",
         identity: twitter_hanlder,
-        public_key: coinbase.slice(2)
+        public_key: pubkey.slice(2)
       };
+      console.log(body)
       const response = await fetch(`${API_URL}/v1/proof`, {
         method: 'POST',
         headers: {
@@ -50,12 +54,13 @@ const CreateAvatar = () => {
         body: JSON.stringify(body)
       });
       console.log(response);
+      // {"message":"invalid secp256k1 public key: invalid secp256k1 public key: invalid secp256k1 public key: invalid secp256k1 public key"}
       setProofRes(await response.text());
     };
     return (
         <div>
             <label>Twitter Account</label>
-            <input type="text" onChange={setTwitter} />
+            <input type="text" onChange={(e) => {setTwitter(e.target.value)}} />
             <button onClick={handleSignMessage}>Sign Message with MetaMask</button>
             {
               signature &&
